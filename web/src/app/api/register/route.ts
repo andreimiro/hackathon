@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { api } from "../../../../convex/_generated/api";
+import { ConvexHttpClient } from "convex/browser";
 
-// Simple in-memory storage (same as /api/users)
-const users: Map<string, { name: string; email: string; githubRepo: string; createdAt: number }> = new Map();
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,15 +42,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Save user (update if exists)
-    users.set(clerkId, {
+    // Save user to Convex
+    const userId = await convex.mutation(api.users.register, {
+      clerkId,
       name,
       email,
       githubRepo,
-      createdAt: Date.now(),
     });
 
-    return NextResponse.json({ success: true, message: "User registered", userId: clerkId });
+    return NextResponse.json({ success: true, message: "User registered", userId });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(

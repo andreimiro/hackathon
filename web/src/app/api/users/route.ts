@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { api } from "../../../../convex/_generated/api";
+import { ConvexHttpClient } from "convex/browser";
 
-const users: Map<string, { name: string; email: string; githubRepo: string; createdAt: number }> = new Map();
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function GET() {
-  return NextResponse.json(Array.from(users.entries()).map(([id, user]) => ({ id, ...user })));
+  try {
+    const users = await convex.query(api.users.getAll);
+    return NextResponse.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return NextResponse.json([]);
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -13,17 +21,15 @@ export async function POST(req: NextRequest) {
 
     console.log("Register request:", { clerkId, name, email, githubRepo });
 
-    const userId = clerkId || `demo_${Date.now()}`;
-
     if (!githubRepo) {
       return NextResponse.json({ error: "GitHub repository URL is required" }, { status: 400 });
     }
 
-    users.set(userId, {
+    const userId = await convex.mutation(api.users.register, {
+      clerkId: clerkId || `demo_${Date.now()}`,
       name: name || "",
       email: email || "",
       githubRepo,
-      createdAt: Date.now(),
     });
 
     console.log("User registered:", userId);
