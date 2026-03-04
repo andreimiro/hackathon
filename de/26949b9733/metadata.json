@@ -3,7 +3,7 @@
   "checkpoint_id": "de26949b9733",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 9,
+  "checkpoints_count": 10,
   "files_touched": [
     "web/.gitignore",
     "web/convex/schema.ts",
@@ -11,6 +11,7 @@
     "web/package.json",
     "web/src/app/dashboard/page.tsx",
     "web/src/app/layout.tsx",
+    "web/src/app/page.tsx",
     "web/src/components/navigation.tsx",
     "web/src/components/providers.tsx",
     "web/src/proxy.ts"
@@ -22,6 +23,13 @@
       "context": "/de/26949b9733/0/context.md",
       "content_hash": "/de/26949b9733/0/content_hash.txt",
       "prompt": "/de/26949b9733/0/prompt.txt"
+    },
+    {
+      "metadata": "/de/26949b9733/1/metadata.json",
+      "transcript": "/de/26949b9733/1/full.jsonl",
+      "context": "/de/26949b9733/1/context.md",
+      "content_hash": "/de/26949b9733/1/content_hash.txt",
+      "prompt": "/de/26949b9733/1/prompt.txt"
     }
   ],
   "token_usage": {
