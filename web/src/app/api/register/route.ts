@@ -1,37 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { internalAction } from "../../../../convex/_generated/server";
 
-const registerUser = internalAction({
-  args: {
-    clerkId: {} as any,
-    name: {} as any,
-    email: {} as any,
-    githubRepo: {} as any,
-  },
-  handler: async (ctx, args) => {
-    const existing = await ctx.db
-      .query("users" as any)
-      .withIndex("clerkId" as any, (q: any) => q.eq("clerkId", args.clerkId))
-      .first();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
-        name: args.name,
-        email: args.email,
-        githubRepo: args.githubRepo,
-      });
-      return existing._id;
-    }
-
-    return await ctx.db.insert("users" as any, {
-      clerkId: args.clerkId,
-      name: args.name,
-      email: args.email,
-      githubRepo: args.githubRepo,
-      createdAt: Date.now(),
-    });
-  },
-});
+// Simple in-memory storage (same as /api/users)
+const users: Map<string, { name: string; email: string; githubRepo: string; createdAt: number }> = new Map();
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,7 +14,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = process.env.GITHUB_TOKEN;
+    // Validate GitHub repo format
     const repoPath = githubRepo.replace("https://github.com/", "").replace(/\/$/, "");
     const [owner, repo] = repoPath.split("/");
     
@@ -55,6 +25,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check if repo exists on GitHub (if token available)
+    const token = process.env.GITHUB_TOKEN;
     if (token) {
       const repoResponse = await fetch(
         `https://api.github.com/repos/${owner}/${repo}`,
@@ -69,7 +41,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, message: "User registered" });
+    // Save user (update if exists)
+    users.set(clerkId, {
+      name,
+      email,
+      githubRepo,
+      createdAt: Date.now(),
+    });
+
+    return NextResponse.json({ success: true, message: "User registered", userId: clerkId });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
