@@ -420,7 +420,7 @@ export default function Home() {
               <div className="grid md:grid-cols-3 gap-6">
                 {[
                   { name: "1Paper", email: "hello@onepaper.ai" },
-                  { name: "Solt", email: "office@solt.com" },
+                  { name: "Solt", email: "hello@solt.app" },
                   { name: "Carti Colorate", email: "office@carticolorate.com" },
                 ].map((contact, index) => (
                   <div key={index} className="text-center">
