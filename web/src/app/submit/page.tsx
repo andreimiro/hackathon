@@ -14,19 +14,28 @@ interface Submission {
   submittedAt: string
 }
 
+interface Participant {
+  id: string
+  name: string
+  status: string
+  githubUrl?: string
+  submittedAt?: string
+}
+
 export default function SubmitPage() {
   const [selectedParticipant, setSelectedParticipant] = useState<string>("")
   const [githubUrl, setGithubUrl] = useState("")
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
-  const [availableParticipants, setAvailableParticipants] = useState<any[]>([])
+  const [availableParticipants, setAvailableParticipants] = useState<Participant[]>([])
 
   useEffect(() => {
     if (!isClient()) return
 
     const stored = localStorage.getItem("participants")
     if (stored) {
-      const participants = JSON.parse(stored)
-      const workingParticipants = participants.filter((p: any) => p.status === "working")
+      const participants = JSON.parse(stored) as Participant[]
+      const workingParticipants = participants.filter((p) => p.status === "working")
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAvailableParticipants(workingParticipants)
 
       if (workingParticipants.length === 0) {
@@ -61,8 +70,8 @@ export default function SubmitPage() {
     // Update participant status
     const stored = localStorage.getItem("participants")
     if (stored) {
-      const participants = JSON.parse(stored)
-      const updatedParticipants = participants.map((p: any) => {
+      const participants = JSON.parse(stored) as Participant[]
+      const updatedParticipants = participants.map((p) => {
         if (p.id === selectedParticipant) {
           return {
             ...p,
@@ -135,7 +144,7 @@ export default function SubmitPage() {
                     required
                   >
                     <option value="">Choose a participant...</option>
-                    {availableParticipants.map((participant: any) => (
+                    {availableParticipants.map((participant) => (
                       <option key={participant.id} value={participant.id}>
                         {participant.name}
                       </option>

@@ -17,6 +17,20 @@ interface ParticipantResult {
   total: number
 }
 
+type StoredParticipant = {
+  id: string
+  name: string
+  githubUrl: string
+  status: string
+}
+
+type StoredRating = {
+  creativity: number
+  design: number
+  similarity: number
+  performance: number
+}
+
 export default function LeaderboardPage() {
   const [results, setResults] = useState<ParticipantResult[]>([])
   const [resultsPublished, setResultsPublished] = useState(false)
@@ -25,14 +39,15 @@ export default function LeaderboardPage() {
     if (!isClient()) return
 
     const published = localStorage.getItem("resultsPublished")
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setResultsPublished(published === "true")
 
-    const participants = JSON.parse(localStorage.getItem("participants") || "[]")
-    const ratings = JSON.parse(localStorage.getItem("ratings") || "{}")
+    const participants = JSON.parse(localStorage.getItem("participants") || "[]") as StoredParticipant[]
+    const ratings = JSON.parse(localStorage.getItem("ratings") || "{}") as Record<string, StoredRating>
 
     const participantResults: ParticipantResult[] = participants
-      .filter((p: any) => p.status === "submitted" && ratings[p.id])
-      .map((p: any) => {
+      .filter((p) => p.status === "submitted" && ratings[p.id])
+      .map((p) => {
         const rating = ratings[p.id]
         const total = rating.creativity + rating.design + rating.similarity + rating.performance
         return {

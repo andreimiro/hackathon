@@ -1,30 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { api } from "../../../../convex/_generated/api";
-import { ConvexHttpClient } from "convex/browser";
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { normalizeGitHubRepoUrl } from "@/lib/github";
+import { upsertUser } from "@/lib/users";
 
 export async function POST(req: NextRequest) {
   try {
-    const { clerkId, name, email, githubRepo } = await req.json();
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!clerkId || !name || !email || !githubRepo) {
+    const { name, email, githubRepo } = await req.json();
+
+    if (!githubRepo) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Validate GitHub repo format
-    const repoPath = githubRepo.replace("https://github.com/", "").replace(/\/$/, "");
-    const [owner, repo] = repoPath.split("/");
-    
-    if (!owner || !repo) {
+    const normalizedGithubRepo = normalizeGitHubRepoUrl(githubRepo);
+    if (!normalizedGithubRepo) {
       return NextResponse.json(
         { error: "Invalid GitHub repository URL" },
         { status: 400 }
       );
     }
+
+    const repoPath = normalizedGithubRepo.replace("https://github.com/", "");
+    const [owner, repo] = repoPath.split("/");
 
     // Check if repo exists on GitHub (if token available)
     const token = process.env.GITHUB_TOKEN;
@@ -42,15 +46,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Save user to Convex
-    const userId = await convex.mutation(api.users.register, {
-      clerkId,
-      name,
-      email,
-      githubRepo,
+    const clerkUser = await currentUser();
+    const savedUserId = await upsertUser({
+      clerkId: userId,
+      name: clerkUser?.fullName || name || clerkUser?.primaryEmailAddress?.emailAddress || "",
+      email: clerkUser?.primaryEmailAddress?.emailAddress || email || "",
+      githubRepo: normalizedGithubRepo,
     });
 
-    return NextResponse.json({ success: true, message: "User registered", userId });
+    return NextResponse.json({ success: true, message: "User registered", userId: savedUserId });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(

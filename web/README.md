@@ -5,16 +5,24 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Supabase
+
+This app stores registrations in Supabase while keeping Clerk as the auth provider. Apply the SQL in `supabase/migrations/0001_create_users.sql`, then set:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+```
+
+The Supabase service role key is used only in server-side API routes.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

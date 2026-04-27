@@ -6,26 +6,58 @@
 }
 
 :root {
-  --background: 0 0% 4%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 6%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 6%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 8 78% 55%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 14%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14%;
-  --muted-foreground: 0 0% 60%;
-  --accent: 8 78% 55%;
-  --accent-foreground: 0 0% 100%;
+  --background: 38 48% 96%;
+  --foreground: 26 17% 14%;
+  --card: 38 54% 98%;
+  --card-foreground: 26 17% 14%;
+  --popover: 38 54% 98%;
+  --popover-foreground: 26 17% 14%;
+  --primary: 11 86% 63%;
+  --primary-foreground: 38 70% 98%;
+  --secondary: 38 22% 89%;
+  --secondary-foreground: 26 17% 14%;
+  --muted: 37 22% 90%;
+  --muted-foreground: 28 12% 43%;
+  --accent: 37 88% 61%;
+  --accent-foreground: 26 17% 14%;
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 18%;
-  --input: 0 0% 18%;
-  --ring: 8 78% 55%;
-  --radius: 0.5rem;
+  --destructive-foreground: 38 70% 98%;
+  --border: 34 23% 80%;
+  --input: 34 23% 80%;
+  --ring: 11 86% 63%;
+  --radius: 0.75rem;
+  --surface: 39 68% 97%;
+  --surface-strong: 40 36% 91%;
+  --ink-soft: 28 12% 43%;
+  --line: 34 23% 80%;
+  --warm-shadow: 22 38% 52%;
+  --metal: 38 16% 83%;
+}
+
+.dark {
+  --background: 28 12% 8%;
+  --foreground: 38 46% 92%;
+  --card: 30 10% 12%;
+  --card-foreground: 38 46% 92%;
+  --popover: 30 10% 12%;
+  --popover-foreground: 38 46% 92%;
+  --primary: 37 88% 63%;
+  --primary-foreground: 28 12% 8%;
+  --secondary: 30 9% 17%;
+  --secondary-foreground: 38 46% 92%;
+  --muted: 30 9% 17%;
+  --muted-foreground: 38 12% 64%;
+  --accent: 11 86% 63%;
+  --accent-foreground: 38 70% 98%;
+  --border: 34 10% 24%;
+  --input: 34 10% 24%;
+  --ring: 37 88% 63%;
+  --surface: 30 10% 12%;
+  --surface-strong: 30 8% 18%;
+  --ink-soft: 38 12% 64%;
+  --line: 34 10% 24%;
+  --warm-shadow: 0 0% 0%;
+  --metal: 32 9% 23%;
 }
 
 * {
@@ -33,16 +65,98 @@
 }
 
 body {
-  background: hsl(var(--background));
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 0%, hsl(37 93% 88% / 0.48), transparent 34rem),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(36 35% 92%) 100%);
   color: hsl(var(--foreground));
+  text-rendering: geometricPrecision;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 78% 0%, hsl(37 88% 56% / 0.14), transparent 28rem),
+    linear-gradient(180deg, hsl(28 12% 8%) 0%, hsl(30 13% 6%) 100%);
 }
 
 /* Grid Background Pattern */
 .grid-bg {
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
   background-size: 50px 50px;
+}
+
+.warm-shell {
+  background:
+    linear-gradient(180deg, hsl(var(--background) / 0.92), hsl(var(--background) / 0.78)),
+    radial-gradient(circle at 15% 12%, hsl(11 86% 72% / 0.18), transparent 20rem),
+    radial-gradient(circle at 88% 22%, hsl(37 88% 70% / 0.18), transparent 22rem);
+}
+
+.aqua-panel {
+  border: 1px solid hsl(var(--line) / 0.78);
+  background:
+    linear-gradient(180deg, hsl(var(--card) / 0.92), hsl(var(--surface) / 0.74)),
+    linear-gradient(135deg, hsl(0 0% 100% / 0.54), transparent 44%);
+  box-shadow:
+    0 22px 70px hsl(var(--warm-shadow) / 0.16),
+    inset 0 1px 0 hsl(0 0% 100% / 0.72);
+  backdrop-filter: blur(18px);
+}
+
+.dark .aqua-panel {
+  background:
+    linear-gradient(180deg, hsl(var(--card) / 0.9), hsl(var(--surface) / 0.72)),
+    linear-gradient(135deg, hsl(0 0% 100% / 0.08), transparent 44%);
+  box-shadow:
+    0 24px 70px hsl(0 0% 0% / 0.28),
+    inset 0 1px 0 hsl(0 0% 100% / 0.08);
+}
+
+.aqua-button {
+  border: 1px solid hsl(11 86% 52% / 0.42);
+  background: linear-gradient(180deg, hsl(13 94% 72%), hsl(10 82% 58%));
+  color: white;
+  box-shadow: 0 14px 32px hsl(11 86% 52% / 0.26), inset 0 1px 0 hsl(0 0% 100% / 0.36);
+}
+
+.aqua-button:hover {
+  filter: saturate(1.08) brightness(0.98);
+}
+
+.glass-button {
+  border: 1px solid hsl(var(--line) / 0.8);
+  background: linear-gradient(180deg, hsl(var(--card) / 0.9), hsl(var(--surface-strong) / 0.74));
+  color: hsl(var(--foreground));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.62);
+}
+
+.metal-strip {
+  border: 1px solid hsl(var(--line));
+  background:
+    linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.38), transparent),
+    repeating-linear-gradient(90deg, hsl(var(--metal)), hsl(var(--metal)) 1px, hsl(var(--surface-strong)) 2px, hsl(var(--surface-strong)) 6px);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.7), 0 18px 50px hsl(var(--warm-shadow) / 0.14);
+}
+
+.dark .metal-strip {
+  background:
+    linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.09), transparent),
+    repeating-linear-gradient(90deg, hsl(var(--metal)), hsl(var(--metal)) 1px, hsl(var(--surface-strong)) 2px, hsl(var(--surface-strong)) 6px);
+}
+
+.serif-display {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -0.03em;
+}
+
+.fine-label {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 /* Smooth scrolling */

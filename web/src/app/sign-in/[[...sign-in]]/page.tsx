@@ -4,7 +4,6 @@ import { SignIn } from "@clerk/nextjs"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { dark } from "@clerk/themes"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -17,49 +16,50 @@ export default function SignInPage() {
   }, [user, isLoaded, router])
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+    <div className="warm-shell flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md px-4 py-12">
         <SignIn
           routing="hash"
           appearance={{
-            baseTheme: dark,
             elements: {
               rootBox: {
                 width: "100%"
               },
               card: {
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "16px",
-                boxShadow: "none",
+                background: "hsl(var(--card) / 0.82)",
+                border: "1px solid hsl(var(--line) / 0.78)",
+                borderRadius: "28px",
+                boxShadow: "0 22px 70px hsl(var(--warm-shadow) / 0.16)",
+                backdropFilter: "blur(18px)",
               },
               headerTitle: {
-                color: "#fff",
-                fontSize: "1.5rem",
-                fontWeight: "700",
+                color: "hsl(var(--foreground))",
+                fontFamily: "Georgia, Times New Roman, serif",
+                fontSize: "2rem",
+                fontWeight: "400",
               },
               headerSubtitle: {
-                color: "#9CA3AF",
+                color: "hsl(var(--muted-foreground))",
               },
               formFieldLabel: {
-                color: "#D1D5DB",
+                color: "hsl(var(--foreground))",
               },
               formFieldInput: {
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "#fff",
-                borderRadius: "8px",
+                background: "hsl(var(--card) / 0.72)",
+                border: "1px solid hsl(var(--line))",
+                color: "hsl(var(--foreground))",
+                borderRadius: "16px",
               },
               formButtonPrimary: {
-                background: "#E84C36",
+                background: "linear-gradient(180deg, hsl(13 94% 72%), hsl(10 82% 58%))",
                 color: "#fff",
-                borderRadius: "8px",
+                borderRadius: "999px",
                 padding: "12px",
                 fontSize: "16px",
                 fontWeight: "600",
               },
               formButtonPrimaryHover: {
-                background: "#D13D2A",
+                background: "hsl(var(--primary))",
               },
               footer: {
                 background: "transparent",
@@ -68,32 +68,32 @@ export default function SignInPage() {
                 background: "transparent",
               },
               footerActionText: {
-                color: "#9CA3AF",
+                color: "hsl(var(--muted-foreground))",
               },
               footerPagesLink: {
-                color: "#9CA3AF",
+                color: "hsl(var(--muted-foreground))",
               },
               footerPagesLinkHover: {
-                color: "#E84C36",
+                color: "hsl(var(--primary))",
               },
               badge: {
-                background: "rgba(255,255,255,0.05)",
-                color: "#6B7280",
+                background: "hsl(var(--foreground) / 0.05)",
+                color: "hsl(var(--muted-foreground))",
               },
               badgeHover: {
                 background: "rgba(255,255,255,0.1)",
               },
               developmentMode: {
-                color: "#E84C36",
+                color: "hsl(var(--primary))",
               },
               footerActionLink: {
-                color: "#E84C36",
+                color: "hsl(var(--primary))",
               },
               identityPreviewText: {
-                color: "#fff",
+                color: "hsl(var(--foreground))",
               },
               identityPreviewEditButton: {
-                color: "#E84C36",
+                color: "hsl(var(--primary))",
               },
               formFieldSuccessText: {
                 color: "#10B981",
@@ -105,25 +105,25 @@ export default function SignInPage() {
                 color: "#EF4444",
               },
               dividerLine: {
-                background: "rgba(255,255,255,0.1)",
+                background: "hsl(var(--line))",
               },
               dividerText: {
-                color: "#6B7280",
+                color: "hsl(var(--muted-foreground))",
               },
               socialButtonsBlockButton: {
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "#fff",
-                borderRadius: "8px",
+                background: "hsl(var(--card) / 0.62)",
+                border: "1px solid hsl(var(--line))",
+                color: "hsl(var(--foreground))",
+                borderRadius: "999px",
               },
               socialButtonsBlockButtonHover: {
                 background: "rgba(255,255,255,0.1)",
               },
               otpCodeFieldInput: {
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "#fff",
-                borderRadius: "8px",
+                background: "hsl(var(--card) / 0.72)",
+                border: "1px solid hsl(var(--line))",
+                color: "hsl(var(--foreground))",
+                borderRadius: "16px",
               },
             },
           }}

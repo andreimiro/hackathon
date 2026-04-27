@@ -1,12 +1,10 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
-import { Github, Users, Plus } from "lucide-react"
+import { ArrowRight, Github, Plus, Users } from "lucide-react"
 
 interface Participant {
   id: string
@@ -30,7 +28,7 @@ export default function ParticipantsPage() {
   const fetchParticipants = async () => {
     try {
       const res = await fetch("/api/users")
-      const users = await res.json()
+      const users = (await res.json()) as Participant[]
       setParticipants(users)
       setLoading(false)
     } catch (e) {
@@ -45,7 +43,7 @@ export default function ParticipantsPage() {
       const [owner, repo] = repoPath.split("/")
       const res = await fetch(`/api/github/metrics?owner=${owner}&repo=${repo}`)
       return await res.json()
-    } catch (e) {
+    } catch {
       return { commits: 0, stars: 0, forks: 0 }
     }
   }
@@ -58,149 +56,130 @@ export default function ParticipantsPage() {
 
   useEffect(() => {
     if (participants.length === 0) return
-    
+
     const loadMetrics = async () => {
       const withMetrics = await Promise.all(
         participants.map(async (p) => ({
           ...p,
-          metrics: await fetchMetrics(p.githubRepo)
+          metrics: await fetchMetrics(p.githubRepo),
         }))
       )
       setParticipants(withMetrics)
     }
     loadMetrics()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participants.length])
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-3xl md:text-4xl font-black text-white">
-              Participants
-            </h1>
-            <p className="text-lg text-gray-400">
-              Track the progress of our competing developers
+    <main className="warm-shell min-h-screen px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-7xl space-y-10">
+        <section className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+          <div>
+            <div className="glass-button inline-flex rounded-full px-4 py-2 text-sm text-muted-foreground">
+              Live roster
+            </div>
+            <h1 className="serif-display mt-6 text-5xl leading-tight text-foreground md:text-7xl">Participants</h1>
+            <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground">
+              A curated mix of builders, creators, and problem solvers shipping during the event.
             </p>
           </div>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 border-2 border-[#E84C36] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-500">Loading participants...</p>
+          <div className="metal-strip grid grid-cols-3 overflow-hidden rounded-2xl">
+            <div className="p-6 text-center">
+              <div className="serif-display text-4xl text-foreground">{participants.length}</div>
+              <div className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Teams</div>
             </div>
-          ) : participants.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Users className="w-10 h-10 text-gray-500" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">No Participants Yet</h2>
-              <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                Be the first to join the hackathon! Register now to participate and compete for the grand prize.
-              </p>
-              {user ? (
-                <Link href="/register">
-                  <button className="bg-[#E84C36] hover:bg-[#D13D2A] text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors inline-flex items-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Register Now
-                  </button>
-                </Link>
-              ) : (
-                <Link href="/sign-up">
-                  <button className="bg-[#E84C36] hover:bg-[#D13D2A] text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors inline-flex items-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Sign Up to Register
-                  </button>
-                </Link>
-              )}
+            <div className="border-x border-[hsl(var(--line)/0.62)] p-6 text-center">
+              <div className="serif-display text-4xl text-foreground">{participants.reduce((sum, p) => sum + (p.metrics?.commits || 0), 0)}</div>
+              <div className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Commits</div>
             </div>
-          ) : (
-            <>
-              <div className="grid md:grid-cols-2 gap-6">
-                {participants.map((participant) => (
-                  <Card key={participant.id} className="bg-white/5 border border-white/10">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-white">
-                          {participant.name || "Anonymous"}
-                        </CardTitle>
-                        <Badge className="bg-green-600/20 text-green-400 border-0">Active</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {participant.githubRepo && (
-                        <div>
-                          <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">
-                            Repository
-                          </p>
-                          <a
-                            href={participant.githubRepo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-[#E84C36] hover:underline"
-                          >
-                            <Github className="w-4 h-4" />
-                            <span className="truncate">{participant.githubRepo.replace("https://github.com/", "")}</span>
-                          </a>
-                        </div>
-                      )}
-                      {participant.metrics && (
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                          <div className="bg-white/5 rounded-lg p-3">
-                            <div className="text-xl font-bold text-white">
-                              {participant.metrics.commits}
-                            </div>
-                            <div className="text-xs text-gray-500">Commits</div>
-                          </div>
-                          <div className="bg-white/5 rounded-lg p-3">
-                            <div className="text-xl font-bold text-white">
-                              {participant.metrics.stars}
-                            </div>
-                            <div className="text-xs text-gray-500">Stars</div>
-                          </div>
-                          <div className="bg-white/5 rounded-lg p-3">
-                            <div className="text-xl font-bold text-white">
-                              {participant.metrics.forks}
-                            </div>
-                            <div className="text-xs text-gray-500">Forks</div>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              {/* Register CTA at bottom */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
-                <h3 className="text-xl font-bold text-white mb-2">Want to join the competition?</h3>
-                <p className="text-gray-400 mb-4">Register now to participate and showcase your skills!</p>
-                {user ? (
-                  <Link href="/register">
-                    <button className="bg-[#E84C36] hover:bg-[#D13D2A] text-white px-6 py-3 rounded-xl font-semibold transition-colors inline-flex items-center gap-2">
-                      <Plus className="w-5 h-5" />
-                      Register Now
-                    </button>
-                  </Link>
-                ) : (
-                  <Link href="/sign-up">
-                    <button className="bg-[#E84C36] hover:bg-[#D13D2A] text-white px-6 py-3 rounded-xl font-semibold transition-colors inline-flex items-center gap-2">
-                      <Plus className="w-5 h-5" />
-                      Sign Up to Register
-                    </button>
-                  </Link>
-                )}
-              </div>
-            </>
-          )}
+            <div className="p-6 text-center">
+              <div className="serif-display text-4xl text-foreground">24h</div>
+              <div className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Build</div>
+            </div>
+          </div>
+        </section>
 
-          <div className="text-center pt-4">
-            <Link href="/dashboard" className="text-[#E84C36] hover:underline">
-              Go to Dashboard →
+        {loading ? (
+          <div className="aqua-panel rounded-[2rem] py-16 text-center text-muted-foreground">Loading participants...</div>
+        ) : participants.length === 0 ? (
+          <div className="aqua-panel rounded-[2rem] px-6 py-16 text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-[hsl(var(--primary)/0.12)]">
+              <Users className="h-10 w-10 text-[hsl(var(--primary))]" />
+            </div>
+            <h2 className="serif-display text-4xl text-foreground">No participants yet</h2>
+            <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-muted-foreground">
+              Be the first to join the hackathon. Register now to participate and show your work.
+            </p>
+            <Link href={user ? "/register" : "/sign-up"}>
+              <button className="aqua-button mt-7 inline-flex h-12 items-center gap-2 rounded-full px-7 font-semibold">
+                <Plus className="h-5 w-5" />
+                {user ? "Register now" : "Sign up to register"}
+              </button>
             </Link>
           </div>
-        </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {participants.map((participant, index) => (
+              <article key={participant.id} className="aqua-panel overflow-hidden rounded-[2rem] p-3">
+                <div className={`h-44 rounded-2xl bg-gradient-to-br ${
+                  index % 3 === 0
+                    ? "from-amber-100 via-stone-200 to-orange-200"
+                    : index % 3 === 1
+                    ? "from-stone-100 via-rose-100 to-amber-200"
+                    : "from-zinc-200 via-stone-300 to-orange-100"
+                } dark:from-stone-800 dark:via-stone-700 dark:to-amber-900/40`} />
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="serif-display text-2xl text-foreground">{participant.name || "Anonymous"}</h2>
+                      <p className="mt-1 text-sm text-muted-foreground">{participant.email}</p>
+                    </div>
+                    <Badge className="border-0 bg-emerald-500/14 text-emerald-600 dark:text-emerald-300">Active</Badge>
+                  </div>
+
+                  {participant.githubRepo && (
+                    <a
+                      href={participant.githubRepo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-6 flex items-center gap-2 rounded-2xl border border-[hsl(var(--line)/0.72)] bg-[hsl(var(--card)/0.62)] p-4 text-[hsl(var(--primary))] hover:underline"
+                    >
+                      <Github className="h-4 w-4" />
+                      <span className="truncate text-sm">{participant.githubRepo.replace("https://github.com/", "")}</span>
+                    </a>
+                  )}
+
+                  {participant.metrics && (
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                      {[
+                        ["Commits", participant.metrics.commits],
+                        ["Stars", participant.metrics.stars],
+                        ["Forks", participant.metrics.forks],
+                      ].map(([label, value]) => (
+                        <div key={label as string} className="rounded-2xl bg-[hsl(var(--foreground)/0.05)] p-3">
+                          <div className="font-mono text-xl font-semibold text-foreground">{value as number}</div>
+                          <div className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-muted-foreground">{label as string}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        <section className="aqua-panel rounded-[2rem] p-8 text-center">
+          <h3 className="serif-display text-3xl text-foreground">Want to join the competition?</h3>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-muted-foreground">Register now to participate and showcase your project.</p>
+          <Link href={user ? "/register" : "/sign-up"}>
+            <button className="aqua-button mt-6 inline-flex h-12 items-center gap-2 rounded-full px-7 font-semibold">
+              {user ? "Register now" : "Sign up to register"}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </Link>
+        </section>
       </div>
-    </div>
+    </main>
   )
 }

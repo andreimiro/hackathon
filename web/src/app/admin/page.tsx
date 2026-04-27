@@ -25,6 +25,13 @@ interface Submission {
   ratings?: Rating
 }
 
+type StoredParticipant = {
+  id: string
+  name: string
+}
+
+type StoredSubmission = Omit<Submission, "participantName" | "ratings">
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
@@ -44,15 +51,16 @@ export default function AdminPage() {
     if (!isClient()) return
 
     const storedResults = localStorage.getItem("resultsPublished")
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setResultsPublished(storedResults === "true")
 
-    const participants = JSON.parse(localStorage.getItem("participants") || "[]")
-    const storedSubmissions = JSON.parse(localStorage.getItem("submissions") || "[]")
+    const participants = JSON.parse(localStorage.getItem("participants") || "[]") as StoredParticipant[]
+    const storedSubmissions = JSON.parse(localStorage.getItem("submissions") || "[]") as StoredSubmission[]
 
-    const storedRatings = JSON.parse(localStorage.getItem("ratings") || "{}")
+    const storedRatings = JSON.parse(localStorage.getItem("ratings") || "{}") as Record<string, Rating>
 
-    const fullSubmissions: Submission[] = storedSubmissions.map((sub: any) => {
-      const participant = participants.find((p: any) => p.id === sub.participantId)
+    const fullSubmissions: Submission[] = storedSubmissions.map((sub) => {
+      const participant = participants.find((p) => p.id === sub.participantId)
       return {
         ...sub,
         participantName: participant?.name || "Unknown",

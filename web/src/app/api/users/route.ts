@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { api } from "../../../../convex/_generated/api";
-import { ConvexHttpClient } from "convex/browser";
-
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { normalizeGitHubRepoUrl } from "@/lib/github";
+import { listUsers, upsertUser } from "@/lib/users";
 
 export async function GET() {
   try {
-    const users = await convex.query(api.users.getAll);
+    const users = await listUsers();
     return NextResponse.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -16,24 +15,28 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { clerkId, name, email, githubRepo } = body;
+    const { name, email, githubRepo } = body;
 
-    console.log("Register request:", { clerkId, name, email, githubRepo });
-
-    if (!githubRepo) {
+    const normalizedGithubRepo = normalizeGitHubRepoUrl(githubRepo || "");
+    if (!normalizedGithubRepo) {
       return NextResponse.json({ error: "GitHub repository URL is required" }, { status: 400 });
     }
 
-    const userId = await convex.mutation(api.users.register, {
-      clerkId: clerkId || `demo_${Date.now()}`,
-      name: name || "",
-      email: email || "",
-      githubRepo,
+    const clerkUser = await currentUser();
+    const savedUserId = await upsertUser({
+      clerkId: userId,
+      name: clerkUser?.fullName || name || clerkUser?.primaryEmailAddress?.emailAddress || "",
+      email: clerkUser?.primaryEmailAddress?.emailAddress || email || "",
+      githubRepo: normalizedGithubRepo,
     });
 
-    console.log("User registered:", userId);
-    return NextResponse.json({ success: true, userId });
+    return NextResponse.json({ success: true, userId: savedUserId });
   } catch (error) {
     console.error("Error saving user:", error);
     return NextResponse.json({ error: "Failed to save" }, { status: 500 });
